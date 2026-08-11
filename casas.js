@@ -1,6 +1,9 @@
 var scene,camera,renderer;
 let agua, aguaGeo, aguaMat, tiempo = 0;
 let casa,casa2,isla;
+let materialEstrellas;
+let moviendoMouse = false;
+let ultimaX = 0;
 let grupoIsla = new THREE.Group();
 const loader = new THREE.GLTFLoader();
 function cargarModelo(ruta, x, y, z, sx, sy, sz, rotY = 0, callback = null) {
@@ -114,6 +117,25 @@ function init(){
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth,window.innerHeight);
   document.getElementById("contenedor3D").appendChild(renderer.domElement);  
+
+renderer.domElement.addEventListener("mousedown", function(event){
+    moviendoMouse = true;
+    ultimaX = event.clientX;
+});
+
+renderer.domElement.addEventListener("mouseup", function(){
+    moviendoMouse = false;
+});
+
+renderer.domElement.addEventListener("mousemove", function(event){
+    if(moviendoMouse && grupoIsla){
+        let movimiento = event.clientX - ultimaX;
+
+        grupoIsla.rotation.y += movimiento * 0.01;
+
+        ultimaX = event.clientX;
+    }
+});
   const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
   luzDir2.position.set(-5, -5, 5);
   scene.add(luzDir2);
@@ -135,6 +157,12 @@ function init(){
   grupoIsla.position.set(2,-1,-2);
   scene.add(grupoIsla);
 
+  //estrellas
+  const datosEstrellas = crearEstrellas(scene);
+  const estrellas = datosEstrellas.estrellas;
+  materialEstrellas = datosEstrellas.material;
+  estrellas.position.y = -13;
+  
   aguaGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
   aguaMat = new THREE.MeshPhongMaterial({color: 0x2E42FF,transparent: true,opacity: 0.7,shininess: 100});
   agua = new THREE.Mesh(aguaGeo, aguaMat);

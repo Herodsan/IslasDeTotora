@@ -32,5 +32,8 @@ function crearEstrellas(scene) {
 
     scene.add(estrellas);
 
-    return materialEstrellas;
+return {
+    estrellas: estrellas,
+    material: materialEstrellas
+};
 }

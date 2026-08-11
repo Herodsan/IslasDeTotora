@@ -17,6 +17,7 @@ let animCamara = {
     duracion: 1.5
 };
 let materialEstrellas;
+let nube1, nube2, nube3, nube4, nube5, nube6, nube7, nube8;
 const cultura = [
 {
     titulo: "Origen del pueblo Uru",
@@ -281,14 +282,14 @@ function init(){
   // isla de la izquierda
   cargarModelo("isla.glb", -18, -2.2, -10, 1, 0.5, 0.5, 0);
   crearCasa(-21,-0.1,-11,20*(Math.PI/180));
-  cargarModelo("cisne.glb", -15, -1.5, -8.3,0.5, 0.6, 0.5, 150 * Math.PI / 180); 
+  cargarModelo("flamenco.glb", -15, -1.5, -8.3,0.5, 0.6, 0.5, 150 * Math.PI / 180); 
   cargarModelo("planta.glb", -23.5, -2.1, -8.3, 0.3, 0.3, 0.3, 2); 
   cargarModelo("planta.glb", -13.5, -2.1, -6.8, 0.3, 0.3, 0.3, 2); 
   cargarModelo("barco3.glb",-18, -1.8, -5,0.5, 0.5, 0.5,0.5);
   // isla de la derecha
   cargarModelo("isla.glb", 18, -2.2, -10, 1, 0.5, 0.5, 3);
   crearCasaTotora(21,-1.5,-10,320*(Math.PI/180));
-  cargarModelo("cisne.glb", 15, -1.5, -9,0.5, 0.6, 0.5, 20 * Math.PI / 180); 
+  cargarModelo("flamenco.glb", 15, -1.5, -9,0.5, 0.6, 0.5, 20 * Math.PI / 180); 
   cargarModelo("planta.glb", 22.8, -2.1, -7, 0.3, 0.3, 0.3, 2); 
   cargarModelo("planta.glb", 12, -2.1, -8.8, 0.3, 0.3, 0.3, 2); 
   cargarModelo("planta.glb", 13, -2.1, -15, 0.3, 0.3, 0.3, 2); 
@@ -306,14 +307,14 @@ function init(){
   cargarModelo("barco3.glb",0, -2, 9,0.5, 0.5, 0.5,3,function(modelo){barco = modelo;});
   cargarModelo("arco.glb", -1, -1, 4.5, 1, 1, 1, 3);
 
-  cargarModelo("nube.glb", -20, 11,-5, 9, 9, 9, 1);
-  cargarModelo("nube.glb", 25, 15,-5, 9, 9, 9, 1);
-  cargarModelo("nube.glb", -10, 15,-30, 9, 9, 9, 2);
-  cargarModelo("nube.glb", 20, 15,-30, 9, 9, 9, 5.5);
-  cargarModelo("nube.glb", 26, 16,-30, 9, 9, 9, 1);
-  cargarModelo("nube.glb", -45, 11,-10, 9, 9, 9, 3);
-  cargarModelo("nube.glb", -45, 11,20, 9, 9, 9, 3);
-  cargarModelo("nube.glb", 35, 11,20, 9, 9, 9, 3);
+cargarModelo("nube.glb", -20, 11,-5, 9, 9, 9, 1, function(modelo){nube1 = modelo;});
+cargarModelo("nube.glb", 25, 15,-5, 9, 9, 9, 1, function(modelo){nube2 = modelo;});
+cargarModelo("nube.glb", -10, 15,-30, 9, 9, 9, 2, function(modelo){nube3 = modelo;});
+cargarModelo("nube.glb", 20, 15,-30, 9, 9, 9, 5.5, function(modelo){nube4 = modelo;});
+cargarModelo("nube.glb", 26, 16,-30, 9, 9, 9, 1, function(modelo){nube5 = modelo;});
+cargarModelo("nube.glb", -45, 11,-10, 9, 9, 9, 3, function(modelo){nube6 = modelo;});
+cargarModelo("nube.glb", -45, 11,20, 9, 9, 9, 3, function(modelo){nube7 = modelo;});
+cargarModelo("nube.glb", 35, 11,20, 9, 9, 9, 3, function(modelo){nube8 = modelo;});
 
   //adelante izquierda
   cargarModelo("isla.glb", -25, -3, 17, 1.3, 1, 1, 0.5);
@@ -423,7 +424,61 @@ function animate() {
 // y: ${destinoLook.y.toFixed(2)}
 // z: ${destinoLook.z.toFixed(2)}`;
 
+if(nube1){
+    nube1.position.x += 0.01;
+    if(nube1.position.x > 50){
+        nube1.position.x = -50;
+    }
+}
 
+if(nube2){
+    nube2.position.x -= 0.008;
+    if(nube2.position.x < -50){
+        nube2.position.x = 50;
+    }
+}
+
+if(nube3){
+    nube3.position.x += 0.006;
+    if(nube3.position.x > 50){
+        nube3.position.x = -50;
+    }
+}
+
+if(nube4){
+    nube4.position.x -= 0.009;
+    if(nube4.position.x < -50){
+        nube4.position.x = 50;
+    }
+}
+
+if(nube5){
+    nube5.position.x += 0.007;
+    if(nube5.position.x > 50){
+        nube5.position.x = -50;
+    }
+}
+
+if(nube6){
+    nube6.position.x += 0.012;
+    if(nube6.position.x > 50){
+        nube6.position.x = -50;
+    }
+}
+
+if(nube7){
+    nube7.position.x += 0.005;
+    if(nube7.position.x > 50){
+        nube7.position.x = -50;
+    }
+}
+
+if(nube8){
+    nube8.position.x -= 0.010;
+    if(nube8.position.x < -50){
+        nube8.position.x = 50;
+    }
+}
   renderer.render(scene, camera);
 }
 init();

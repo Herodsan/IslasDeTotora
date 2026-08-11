@@ -1,6 +1,9 @@
 var scene,camera,renderer;
 let agua, aguaGeo, aguaMat, tiempo = 0;
 let totoras = [];
+let materialEstrellas;
+let moviendoMouse = false;
+let ultimaX = 0;
 const loader = new THREE.GLTFLoader();
 
 function cargarModelo(ruta, x, y, z, sx, sy, sz, rotY = 0, callback = null) {
@@ -26,6 +29,24 @@ function init(){
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth,window.innerHeight);
   document.getElementById("contenedor3D").appendChild(renderer.domElement);  
+
+  renderer.domElement.addEventListener("mousedown", function(event){
+      moviendoMouse = true;
+      ultimaX = event.clientX;
+  });
+  renderer.domElement.addEventListener("mouseup", function(){
+      moviendoMouse = false;
+  });
+  renderer.domElement.addEventListener("mousemove", function(event){
+      if(moviendoMouse && totoras.length > 0){
+          let movimiento = event.clientX - ultimaX;
+          totoras.forEach(function(totora){
+              totora.rotation.y += movimiento * 0.01;
+          });
+          ultimaX = event.clientX;
+      }
+  });
+
   const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
   luzDir2.position.set(0, 0.5, 5);
   scene.add(luzDir2);
@@ -43,6 +64,11 @@ function init(){
   cargarModelo("planta.glb", -2, -1, 1, 0.7, 0.7, 0.7, 3,function(modelo){totoras.push(modelo)});
   cargarModelo("planta.glb", -1, -1, 2, 0.7, 0.7, 0.7, 3,function(modelo){totoras.push(modelo)});
 
+  //estrellas
+  const datosEstrellas = crearEstrellas(scene);
+  const estrellas = datosEstrellas.estrellas;
+  materialEstrellas = datosEstrellas.material;
+  estrellas.position.y = -13;
 
   aguaGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
   aguaMat = new THREE.MeshPhongMaterial({color: 0x2E42FF,transparent: true,opacity: 0.7,shininess: 100});

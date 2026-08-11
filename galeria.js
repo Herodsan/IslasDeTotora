@@ -1,7 +1,9 @@
-var scene,camera,renderer;
+var scene, camera, renderer;
 let agua, aguaGeo, aguaMat, tiempo = 0;
-let anguloBarco = 120*(Math.PI/180);
+let anguloBarco = 120 * (Math.PI / 180);
+let barco;
 let barco2;
+let materialEstrellas;
 const loader = new THREE.GLTFLoader();
 
 function cargarModelo(ruta, x, y, z, sx, sy, sz, rotY = 0, callback = null) {
@@ -16,8 +18,7 @@ function cargarModelo(ruta, x, y, z, sx, sy, sz, rotY = 0, callback = null) {
     }
   });
 }
-
-function crearCasa(posX, posY, posZ) {
+function crearCasa(posX, posY, posZ,rotY = 0) {
   const grupoCasa = new THREE.Group();
 
   function cilindro(radio, alto, x, y, z, color) {
@@ -71,136 +72,161 @@ function crearCasa(posX, posY, posZ) {
   let puerta = new THREE.Mesh(geoP, matP);
   puerta.position.set(0, -0.5, 3);
   grupoCasa.add(puerta);
+
   grupoCasa.position.set(posX, posY, posZ);
+  grupoCasa.rotation.y = rotY;
   scene.add(grupoCasa);
   return grupoCasa;
 }
-function crearCasaTotora(x, y, z){
+function crearCasaTotora(x, y, z, rotY = 0){
     let casa = new THREE.Group();
     let colorTotora = new THREE.MeshPhongMaterial({color: 0xd2b16d});
     let radio = 2;
     let altoPared = 2.4;
     let palos = 160;
+    // Paredes
     for(let i = 0; i < palos; i++){
-        let geo = new THREE.CylinderGeometry(0.04,0.04,altoPared,6);
-        let palo = new THREE.Mesh(geo,colorTotora);
+        let geo = new THREE.CylinderGeometry(0.04, 0.04, altoPared, 6);
+        let palo = new THREE.Mesh(geo, colorTotora);
         let ang = i * Math.PI * 2 / palos;
         palo.position.set(Math.cos(ang) * radio,altoPared / 2,Math.sin(ang) * radio);
         palo.rotation.y = ang;
         casa.add(palo);
     }
+    // Techo
     let radioTecho = 1;
     let alturaPunta = altoPared + 2;
     let cantidadTecho = 120;
     for(let i = 0; i < cantidadTecho; i++){
-        let geo = new THREE.CylinderGeometry(0.04,0.04,3.3,6);
-        let palo = new THREE.Mesh(geo,colorTotora);
+        let geo = new THREE.CylinderGeometry(0.04, 0.04, 3.3, 6);
+        let palo = new THREE.Mesh(geo, colorTotora);
         let ang = i * Math.PI * 2 / cantidadTecho;
         let px = Math.cos(ang) * radioTecho;
         let pz = Math.sin(ang) * radioTecho;
         palo.position.set(px,altoPared + 1.15,pz);
         palo.lookAt(0, alturaPunta, 0);
-        palo.rotateX(Math.PI/2);
+        palo.rotateX(Math.PI / 2);
         casa.add(palo);
     }
-    let geoP = new THREE.PlaneGeometry(0.9,1.7);
-    let matP = new THREE.MeshPhongMaterial({color: 0x000000,side: THREE.DoubleSide});
+    let geoP = new THREE.PlaneGeometry(0.9, 1.7);
+    let matP = new THREE.MeshPhongMaterial({color: 0x000000,side: THREE.DoubleSide}); 
     let puerta = new THREE.Mesh(geoP, matP);
-    puerta.position.set(0,0.8,radio+0.04);
+    puerta.position.set(0,0.8,radio + 0.04);
     casa.add(puerta);
-    casa.position.set(x,y,z);
+    casa.position.set(x, y, z);
+    casa.rotation.y = rotY;
     scene.add(casa);
     return casa;
 }
-function init(){
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0b1a2b); 
-  camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-  camera.position.set(-6, 3, 17);
-  camera.lookAt(0, 0, 0);
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-  document.getElementById("contenedor3D").appendChild(renderer.domElement);  
-  const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
-  luzDir2.position.set(-5, -5, 5);
-  scene.add(luzDir2);
-  const lightAmb = new THREE.PointLight(0xE4D96F, 1);
-  lightAmb.position.set(0, 0, 0);
-  scene.add(lightAmb);
-  scene.fog = new THREE.Fog(0x0b1a2b, 10, 80);
-  
-  crearCasa(-4,0,-4);
-  crearCasa(1.5,0,-4);
-  crearCasaTotora(-7,-1.5,0.5);
-  crearCasa(4,0,2);
-  // isla de la izquierda
-  cargarModelo("isla.glb", -18, -2.2, -10, 1, 0.5, 0.5, 3);
-  let casaIzq1 = crearCasa(-20,0,-12);
-  casaIzq1.rotation.y = 20*(Math.PI/180);
-  cargarModelo("planta.glb", -23.5, -2.1, -8.3, 0.3, 0.3, 0.3, 2); 
-  cargarModelo("planta.glb", -13.5, -2.1, -6.8, 0.3, 0.3, 0.3, 2); 
-  cargarModelo("barco3.glb",-19, -2, -5,0.2, 0.3, 0.3,2);
-  // isla de la derecha
-  cargarModelo("isla.glb", 18, -2.2, -10, 1, 0.5, 0.5, 3);
-  let casaDer1 = crearCasaTotora(21,-1.5,-12);
-  casaDer1.rotation.y = 320*(Math.PI/180);
-  cargarModelo("planta.glb", 22.8, -2.1, -7, 0.3, 0.3, 0.3, 2); 
-  cargarModelo("planta.glb", 12, -2.1, -8.8, 0.3, 0.3, 0.3, 2); 
-  cargarModelo("planta.glb", 13, -2.1, -15, 0.3, 0.3, 0.3, 2); 
-  cargarModelo("barco3.glb",20, -2, -4.5,0.2, 0.3, 0.3,2);
-  //isla del medio
-  cargarModelo("isla.glb", 0, -3, 0, 1.8, 1, 1, 3);
-  cargarModelo("planta.glb", -10.3, -2.5, 3.5, 0.3, 0.3, 0.3, 2);
-  cargarModelo("planta.glb", -11.5, -2.5, 2.5, 0.3, 0.3, 0.3, 3);
-  cargarModelo("planta.glb", 8, -2.5, 5.5, 0.3, 0.3, 0.3, 3);
-  cargarModelo("planta.glb", 8, -2.5, 6, 0.3, 0.3, 0.3, 3);
-  cargarModelo("planta.glb", 8, -2.5, 6.5, 0.3, 0.3, 0.3, 3);
-  cargarModelo("planta.glb", -9.4, -2, 5, 0.2, 0.2, 0.2, 1);
-  cargarModelo("planta.glb", 8, -2,7.3, 0.2, 0.2, 0.2, 1);
-  cargarModelo("barcoDoble.glb",-15, -3, 10,0.8, 0.8, 0.8,1.5,function(modelo){barco2 = modelo;});
-  cargarModelo("barco3.glb",0, -2, 9,0.2, 0.3, 0.3,1.5,function(modelo){barco = modelo;});
-  
-  aguaGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
-  aguaMat = new THREE.MeshPhongMaterial({color: 0x2E42FF,transparent: true,opacity: 0.7,shininess: 100});
+function init() {
 
-  agua = new THREE.Mesh(aguaGeo, aguaMat);
-  agua.rotation.x = -Math.PI / 2;
-  agua.position.y = -2; 
-  scene.add(agua);
-  
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b1a2b);
+    camera = new THREE.PerspectiveCamera(75,window.innerWidth /window.innerHeight,0.1,1000);
+    camera.position.set(-6,3,17);
+    camera.lookAt(0,0,0);
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    document.getElementById("contenedor3D").appendChild(renderer.domElement);
+
+    const luzDir2 = new THREE.DirectionalLight(0xE4D96F,3);
+    luzDir2.position.set(-5,-5,5);
+    scene.add(luzDir2);
+    const lightAmb = new THREE.PointLight(0xE4D96F,1);
+    lightAmb.position.set(0,0,0);
+    scene.add(lightAmb);
+    const luzPunt2 = new THREE.PointLight(0xE4D96F,1);
+    luzPunt2.position.set(-21,-3,17);
+    scene.add(luzPunt2);
+
+    scene.fog = new THREE.Fog(0x0b1a2b,10,80);
+    crearCasa(-4,0,-4);
+    crearCasa(1.5,0,-4);
+    crearCasaTotora(-7,-1.5,0.5);
+    crearCasa(4,0,2);
+    cargarModelo("isla.glb",-18,-2.2,-10,1,0.5,0.5,3);
+
+    let casaIzq1 = crearCasa(-20,0,-12);
+    casaIzq1.rotation.y = 20 * (Math.PI / 180);
+    cargarModelo("planta.glb",-23.5,-2.1,-8.3,0.3,0.3,0.3,2);
+    cargarModelo("planta.glb",-13.5,-2.1,-6.8,0.3,0.3,0.3,2);
+    cargarModelo("barco3.glb",-19,-2,-5,0.2,0.3,0.3,2);
+
+    cargarModelo("isla.glb",18,-2.2,-10,1,0.5,0.5,3);
+    let casaDer1 = crearCasaTotora(21,-1.5,-12);
+    casaDer1.rotation.y = 320 * (Math.PI / 180);
+
+    cargarModelo("planta.glb",22.8,-2.1,-7,0.3,0.3,0.3,2);
+    cargarModelo("planta.glb",12,-2.1,-8.8,0.3,0.3,0.3,2);
+    cargarModelo("planta.glb",13,-2.1,-15,0.3,0.3,0.3,2);
+    cargarModelo("barco3.glb",20,-2,-4.5,0.2,0.3,0.3,2);
+    cargarModelo("isla.glb",0,-3,0,1.8,1,1,3);
+    cargarModelo("planta.glb",-10.3,-2.5,3.5,0.3,0.3,0.3,2);
+    cargarModelo("planta.glb",-11.5,-2.5,2.5,0.3,0.3,0.3,3);
+    cargarModelo("planta.glb",8,-2.5,5.5,0.3,0.3,0.3,3);
+    cargarModelo("planta.glb",8,-2.5,6,0.3,0.3,0.3,3);
+    cargarModelo("planta.glb",8,-2.5,6.5,0.3,0.3,0.3,3);
+    cargarModelo("planta.glb",-9.4,-2,5,0.2,0.2,0.2,1);
+    cargarModelo("planta.glb",8,-2,7.3,0.2,0.2,0.2,1);
+
+    cargarModelo("barcoDoble.glb",-15, 0, 10,2, 2, 2,3,function(modelo){barco2 = modelo;});
+    cargarModelo("barco3.glb",0, -2, 9,0.5, 0.5, 0.5,3,function(modelo){barco = modelo;});
+
+    cargarModelo("nube.glb",-20,11,-5,9,9,9,1);
+    cargarModelo("nube.glb",25,15,-5,9,9,9,1);
+    cargarModelo("nube.glb",-10,15,-30,9,9,9,2);
+    cargarModelo("nube.glb",20,15,-30,9,9,9,5.5);
+    cargarModelo("nube.glb",26,16,-30,9,9,9,1);
+    cargarModelo("nube.glb",-45,11,-10,9,9,9,3);
+    cargarModelo("nube.glb",-45,11,20,9,9,9,3);
+    cargarModelo("nube.glb",35,11,20,9,9,9,3);
+
+    materialEstrellas = crearEstrellas(scene);
+    aguaGeo = new THREE.PlaneGeometry(200,200,100,100);
+    aguaMat = new THREE.MeshPhongMaterial({color: 0x2E42FF,transparent: true,opacity: 0.7,shininess: 100});
+    agua = new THREE.Mesh(aguaGeo,aguaMat);
+    agua.rotation.x = -Math.PI / 2;
+    agua.position.y = -2;
+    scene.add(agua);
 }
+
+
 function animate() {
-  requestAnimationFrame(animate);
-  tiempo += 0.02;
-  const pos = agua.geometry.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    let x = pos.getX(i);
-    let y = pos.getY(i);
-    let z = Math.sin(x * 0.2 + tiempo) * 0.2 + Math.cos(y * 0.2 + tiempo) * 0.2;
-    pos.setZ(i, z);
-  }
-  pos.needsUpdate = true;
-  agua.geometry.computeVertexNormals();
 
-  if(barco){
-    anguloBarco -= 0.002;
-    barco.position.x = Math.cos(anguloBarco) * 12;
-    barco.position.z = Math.sin(anguloBarco) * 12;
-    barco.position.y = -2 + Math.sin(tiempo * 2) * 0.08;
-    barco.lookAt(
-      Math.cos(anguloBarco + 0.1) * 12,
-      barco.position.y,
-      Math.sin(anguloBarco + 0.1) * 12
-    );
-  }
-  if (barco2) {
-  barco2.position.x += 0.02;
-  barco2.position.y = -2.9 + Math.sin(tiempo * 2) * 0.08;
-  if (barco2.position.x > 30) {
-    barco2.position.x = -18;
-  }
-}
-  renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+    tiempo += 0.02;
+    if (materialEstrellas) {
+        materialEstrellas.opacity = 0.7 + Math.sin(tiempo * 4) * 0.3;
+    }
+    const pos = agua.geometry.attributes.position;
+
+    for (let i = 0;i < pos.count;i++) {
+        let x = pos.getX(i);
+        let y = pos.getY(i);
+        let z = Math.sin(x * 0.2 + tiempo) * 0.2 + Math.cos(y * 0.2 + tiempo) * 0.2;
+        pos.setZ(i,z);
+    }
+    pos.needsUpdate = true;
+    agua.geometry.computeVertexNormals();
+    if (barco) {
+        anguloBarco -= 0.002;
+        barco.position.x = Math.cos(anguloBarco) * 14;
+        barco.position.z = Math.sin(anguloBarco) * 12;
+        barco.position.y = -2 + Math.sin(tiempo * 2) * 0.08;
+        barco.rotation.y = -anguloBarco + 5;
+    }
+
+    if (barco2) {
+
+        barco2.position.x += 0.025;
+        barco2.position.y = -2.4 +Math.sin(tiempo * 2) * 0.08;
+
+        if (barco2.position.x > 30) {
+            barco2.position.x = -18;
+        }
+    }
+
+    renderer.render(scene,camera);
 }
 init();
-animate();s
+animate();
