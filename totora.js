@@ -47,6 +47,32 @@ function init(){
       }
   });
 
+    renderer.domElement.addEventListener("touchstart", function(event){
+      if(event.touches.length === 1){
+          moviendoMouse = true;
+          ultimaX = event.touches[0].clientX;
+      }
+
+  }, { passive: false });
+
+  renderer.domElement.addEventListener("touchmove", function(event){
+      if(moviendoMouse && totoras.length > 0){
+          event.preventDefault();
+          let posicionActual = event.touches[0].clientX;
+          let movimiento = posicionActual - ultimaX;
+          totoras.forEach(function(totora){
+              totora.rotation.y += movimiento * 0.01;
+          });
+          ultimaX = posicionActual;
+      }
+
+  }, { passive: false });
+  renderer.domElement.addEventListener("touchend", function(){
+      moviendoMouse = false;
+  });
+
+  renderer.domElement.style.touchAction = "none";
+  
   const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
   luzDir2.position.set(0, 0.5, 5);
   scene.add(luzDir2);

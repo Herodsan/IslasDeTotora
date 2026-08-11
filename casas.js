@@ -118,24 +118,52 @@ function init(){
   renderer.setSize(window.innerWidth,window.innerHeight);
   document.getElementById("contenedor3D").appendChild(renderer.domElement);  
 
-renderer.domElement.addEventListener("mousedown", function(event){
-    moviendoMouse = true;
-    ultimaX = event.clientX;
-});
+  renderer.domElement.addEventListener("mousedown", function(event){
+      moviendoMouse = true;
+      ultimaX = event.clientX;
+  });
 
-renderer.domElement.addEventListener("mouseup", function(){
-    moviendoMouse = false;
-});
+  renderer.domElement.addEventListener("mouseup", function(){
+      moviendoMouse = false;
+  });
 
-renderer.domElement.addEventListener("mousemove", function(event){
-    if(moviendoMouse && grupoIsla){
-        let movimiento = event.clientX - ultimaX;
+  renderer.domElement.addEventListener("mousemove", function(event){
+      if(moviendoMouse && grupoIsla){
+          let movimiento = event.clientX - ultimaX;
 
-        grupoIsla.rotation.y += movimiento * 0.01;
+          grupoIsla.rotation.y += movimiento * 0.01;
 
-        ultimaX = event.clientX;
-    }
-});
+          ultimaX = event.clientX;
+      }
+  });
+
+  renderer.domElement.addEventListener("touchstart", function(event){
+      if(event.touches.length === 1){
+          moviendoMouse = true;
+          ultimaX = event.touches[0].clientX;
+      }
+    
+  }, { passive: false });
+  renderer.domElement.addEventListener("touchmove", function(event){
+      if(moviendoMouse && grupoIsla && event.touches.length === 1){
+          event.preventDefault();
+          let posicionActual = event.touches[0].clientX;
+          let movimiento = posicionActual - ultimaX;
+          grupoIsla.rotation.y += movimiento * 0.01;
+          ultimaX = posicionActual;
+      
+      }
+    
+  }, { passive: false });
+  renderer.domElement.addEventListener("touchend", function(){
+      moviendoMouse = false;
+  });
+  renderer.domElement.addEventListener("touchcancel", function(){
+      moviendoMouse = false;
+  });
+
+  renderer.domElement.style.touchAction = "none";
+
   const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
   luzDir2.position.set(-5, -5, 5);
   scene.add(luzDir2);

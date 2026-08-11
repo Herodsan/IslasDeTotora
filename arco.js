@@ -42,9 +42,29 @@ function init(){
           let movimiento = event.clientX - ultimaX;
           grupoIsla.rotation.y += movimiento * 0.01;
           ultimaX = event.clientX;
-      }
-    
+      }    
   });
+
+  renderer.domElement.addEventListener("touchstart", function(event){
+      moviendoMouse = true;
+      ultimaX = event.touches[0].clientX;
+  }, { passive: true });
+
+  renderer.domElement.addEventListener("touchmove", function(event){
+      if(moviendoMouse && grupoIsla){
+          let nuevaX = event.touches[0].clientX;
+          let movimiento = nuevaX - ultimaX;
+          grupoIsla.rotation.y += movimiento * 0.01;
+          ultimaX = nuevaX;
+      }
+      event.preventDefault();
+  }, { passive: false });
+
+  renderer.domElement.addEventListener("touchend", function(){
+      moviendoMouse = false;
+  });
+
+  renderer.domElement.style.touchAction = "none";
 
   const luzDir1 = new THREE.DirectionalLight(0xE4D96F, 1);
   luzDir1.position.set(3, -1, 5);
