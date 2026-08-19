@@ -27,29 +27,37 @@
                             <li><a href="mirador.html">Mirador</a></li>
                         </ul>
                     </li>
-                    <li><a href="galeria.html">Galeria</a></li>
                     <li><a href="ubicacion.html">Ubicacion</a></li>
                 </ul>
             </nav>
         </header>
         <div class="info2" id="inicioInfo">
             <h1>ISLAS DE TOTORA</h1>
-            <p>Un mundo construido sobre el agua del Lago Titicaca</p>
-            <button class="boton_explorar"onclick="mostrarCultura()">Descubrir la cultura Uru</button>
+            <p>Navega entre islas flotantes y descubre cómo un pueblo aprendió a vivir sobre el agua</p>
+            <button class="boton_explorar"onclick="mostrarCultura()">Haz clic para explorar</button>
         </div>
 
         <div class="info" id="panelInfo" style="display:none;">
             <h1 id="tituloInfo"></h1>
+            <img id="imagenInfo" src="" alt="" class="imagenInfo">
             <p id="textoInfo"></p>
-            <div class="botonesInfo">
+            <p class="fuenteInfo" id="fuenteInfo"></p>
+        </div>
+        <div class="botonesInfo" id="botonesInfo" style="display:none;">
             <button class="boton_explorar" onclick="anteriorInfo()">Atrás</button>
             <button id="btnSiguiente" class="boton_explorar" onclick="siguienteInfo()">Continuar</button>
-            </div>
         </div>
+        <div class="botonesAmbiente">
+    <button class="boton_explorar" onclick="cambiarAmbiente('dia')">☀️ Día</button>
+    <button class="boton_explorar" onclick="cambiarAmbiente('atardecer')">🌅 Atardecer</button>
+    <button class="boton_explorar" onclick="cambiarAmbiente('noche')">🌙 Noche</button>
+</div>
         <div id="contenedor3D"></div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
         <script src="estrellas.js"></script>
         <script src="script.js"></script>
     </body>

@@ -1,7 +1,5 @@
   var scene,camera,renderer;
-  let agua, aguaGeo, aguaMat, tiempo = 0;
-  let barco,barco2;
-  let materialEstrellas;
+  let tiempo = 0;
   let moviendoMouse = false;
   let ultimaX = 0;
   const loader = new THREE.GLTFLoader();
@@ -79,16 +77,39 @@
 
     renderer.domElement.style.touchAction = "none";
 
-    const luzDir2 = new THREE.DirectionalLight(0xE4D96F, 3);
-    luzDir2.position.set(0, 0.5, 5);
-    scene.add(luzDir2);
-    const lightAmb = new THREE.PointLight(0xE4D96F, 1);
-    lightAmb.position.set(0, 0, 0);
-    scene.add(lightAmb);
-    const luzaAmbiental = new THREE.AmbientLight(0xE4D96F, 1);
-  //   scene.add(luzaAmbiental);
-    scene.fog = new THREE.Fog(0x0b1a2b, 10, 80);
+    // 1. Luz Ambiental suave (mantiene los tonos neutros en todo el modelo)
+    const luzAmbiental = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(luzAmbiental);
 
+    // 2. Luz del Sol/Luna desde ARRIBA (no desde abajo) con intensidad moderada
+    const luzDir2 = new THREE.DirectionalLight(0xffffff, 1.2); 
+    luzDir2.position.set(10, 20, 10); // Desde arriba y con ángulo
+    scene.add(luzDir2);
+
+    // 3. Luces puntuales suavizadas para los barcos/islas
+    const luzPunt = new THREE.PointLight(0xffffff, 0.5);
+    luzPunt.position.set(0, 5, 5);
+    scene.add(luzPunt);
+
+
+    // --- PRUEBA DE SKY (cielo nocturno) ---
+    sky = new THREE.Sky();
+    sky.scale.setScalar(450000);
+    scene.add(sky);
+
+    const skyUniforms = sky.material.uniforms;
+    skyUniforms['turbidity'].value = 8;
+    skyUniforms['rayleigh'].value = 3;
+    skyUniforms['mieCoefficient'].value = 0.01;
+    skyUniforms['mieDirectionalG'].value = 0.95;
+
+    const solSky = new THREE.Vector3();
+    const elevacion = 4;  // sol bajo el horizonte, probando de noche
+    const azimuth = 220;
+    const phi = THREE.MathUtils.degToRad(90 - elevacion);
+    const theta = THREE.MathUtils.degToRad(azimuth);
+    solSky.setFromSphericalCoords(1, phi, theta);
+    skyUniforms['sunPosition'].value.copy(solSky);
 
     cargarModelo("planta.glb", -2, 0, -1, 0.3, 0.3, 0.3, 3);
     cargarModelo("planta.glb", 9, 0, -1, 0.3, 0.3, 0.3, 3);
@@ -98,31 +119,34 @@
     cargarModelo("barcoDoble.glb",3.5, -0.5, 1,2.3, 2.3, 2.3,5.5,function(modelo){barco2 = modelo;});
     cargarModelo("barco3.glb",-20, 0, -6,0.8, 0.7, 0.7,3,function(modelo){barco = modelo;});
 
-  //estrellas
-    const datosEstrellas = crearEstrellas(scene);
-    const estrellas = datosEstrellas.estrellas;
-    materialEstrellas = datosEstrellas.material;
-    estrellas.position.y = -13;
+  // Agua realista
+  const aguaGeometry = new THREE.PlaneGeometry(200, 200);
+  water = new THREE.Water(aguaGeometry, {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: new THREE.TextureLoader().load(
+          'https://threejs.org/examples/textures/waternormals.jpg',
+          function (textura) {
+              textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
+          }
+      ),
+      sunDirection: luzDir2.position.clone().normalize(),
+      sunColor: 0xffffff,
+      waterColor: 0x0e2a3d,
+      distortionScale: 1.8,
+      fog: scene.fog !== undefined
+  });
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = 0.1;
+  scene.add(water);
 
-    aguaGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
-    aguaMat = new THREE.MeshPhongMaterial({color: 0x2E42FF,transparent: true,opacity: 0.7,shininess: 100});
-    agua = new THREE.Mesh(aguaGeo, aguaMat);
-    agua.rotation.x = -Math.PI / 2;
-    agua.position.y = 0; 
-    scene.add(agua);
   }
   function animate() {
     requestAnimationFrame(animate);
     tiempo += 0.02;
-    const pos = agua.geometry.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-      let x = pos.getX(i);
-      let y = pos.getY(i);
-      let z = Math.sin(x * 0.2 + tiempo) * 0.2 + Math.cos(y * 0.2 + tiempo) * 0.2;
-      pos.setZ(i, z);
-    }
-    pos.needsUpdate = true;
-    agua.geometry.computeVertexNormals();
+  if (water) {
+    water.material.uniforms['time'].value += 0.6 / 60.0;
+  }
     if (barco) {
     barco.position.x += 0.08;
     barco.position.y = 0 + Math.sin(tiempo * 2) * 0.08;
